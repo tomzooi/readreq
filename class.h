@@ -1,13 +1,16 @@
-#include <vector>
+#include <list>
 class Requirement {
-	public:
-		bool empty;
-		std::string level;
-		std::string description;
-		std::string label;
-		std::vector <Requirement> children;
-		Requirement * parent;
-		Requirement(std::string l, std::string d, std::string la, Requirement * p);
-		void Display(int depth);
-		void JSON(int depth, std::ofstream &outfile);
+    public:
+        bool empty;
+        std::string level;
+        std::string description;
+        std::string label;
+        Requirement const* parent;
+        std::list <Requirement> children;
+
+        Requirement(Requirement const* p);
+        Requirement(std::string l, std::string d, std::string la, Requirement const* p); // unused
+
+        void print(std::string indent = "");
+        void print_json(std::ostream &os, std::string indent = "");
 };

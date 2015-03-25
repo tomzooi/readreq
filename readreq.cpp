@@ -13,74 +13,33 @@
 #include <sstream>
 #include <fstream>
 #include <string>
-#include <vector>
+#include <list>
 #include <algorithm>
 #include "class.h"
 
-void display(const int depth, const boost::property_tree::ptree& tree, Requirement * cur_requirement, std::vector<Requirement> &requirements) { 
-	unsigned int count;
-   std::string label,level,description;
-   boost::property_tree::ptree kids = tree.get_child("");
-	bool godown = false;
-	for (const auto& v : kids) { // v is of type ptree::value_type
-		std::cout << std::string("").assign(depth+1,'#') << " ";
-		std::string nodestr = tree.get<std::string>(v.first);  
-		//std::cout << v.first << " = " << nodestr << std::endl;
-		if (v.first == "label") {
-			label = nodestr;
-			std::cout << "lbl: " << label << std::endl;
-		}
-		else if(v.first == "level") {
-			//std::cout << "LABEL!";
-				level = nodestr;
-				std::cout << "lvl: " << level << std::endl;
-		}
-		else if(v.first == "description") {
-				description = nodestr;
-				std::cout << "dsc: " << description << std::endl;
-		}
-		else if(v.first == "children") { //going down, store stuff first
-			if(depth == 0) { //zero depth
-				std::cout << "zero depth...";
-				requirements.emplace_back(level, description, label,cur_requirement);
-				cur_requirement = &requirements.back();
-			}
-			else { //one or higher depth
-				std::cout << "at depth " << depth << "..." << std::flush; 
-				cur_requirement->children.emplace_back(level,description,label,cur_requirement->parent);
-				cur_requirement = &cur_requirement->children.back();
-			}
-			std::cout << "going down" << std::endl;
-			//cur_requirement = &cur_requirement->children.back();
-			display(depth+1, v.second, cur_requirement,requirements);
-		}
-		else if(v.first == "") {
-			std::cout << "empty v.first ... level: " << level << std::endl;
-			if(depth == 0) { //zero depth
-				std::cout << "store at zero depth...";
-				requirements.emplace_back(level, description, label,cur_requirement);
-				cur_requirement = &requirements.back();
-			}
-			else { //one or higher depth
-				std::cout << "store at depth " << depth << " : " << level << "--" << description << std::flush; 
-				cur_requirement->children.emplace_back(level,description,label,cur_requirement->parent);
-				//cur_requirement = &cur_requirement->children.back();
-			}
-			std:: cout << " going to next " << std::endl;
-			//cur_requirement = &cur_requirement->children.back();
-			display(depth, v.second, cur_requirement,requirements);
-		}
-		else {
-			std:: cout << "what else..." << std::endl;
-			}
-   	 // v.first is the name of the child
-    // v.second is the child tree
-	}
-};  
+void parse_json(int depth, boost::property_tree::ptree const& tree, Requirement& cur)
+{
+    cur.label       = tree.get("label",       "");
+    cur.level       = tree.get("level",       "");
+    cur.description = tree.get("description", "");
+
+    if (auto kids = tree.get_child_optional("children")) {
+        for (auto& kid : *kids) {
+            std::cout << "at depth " << depth << "... " << std::flush;
+
+            cur.children.emplace_back(&cur);
+
+            std::cout << "going down" << std::endl;
+            parse_json(depth + 1, kid.second, cur.children.back());
+        }
+    }
+}
+
 
 int main(int argc, char *argv[]) {
-	std::vector <Requirement> requirements;
-	Requirement * cur_requirement;
+	
+	Requirement root(nullptr);
+
 	std::string name;
 	std::string prefix;
 	std::string filename;
@@ -99,12 +58,13 @@ int main(int argc, char *argv[]) {
 
         boost::property_tree::ptree pt;
         boost::property_tree::read_json(ss, pt);
-		display(0, pt,cur_requirement,requirements);
+	parse_json(0, pt,root);
        	std::cout << std::endl << std::endl;
-			for (Requirement req : requirements) {
-				req.Display(0);
-			}
-
+			
+	
+	std::cout << std::endl << std::endl;
+        root.print("; debug: ");
+        root.print_json(std::cout);
 	return EXIT_SUCCESS;
     }
     catch (std::exception const& e)

@@ -35,11 +35,13 @@ int main(int argc, char *argv[]) {
 			std::string req_level;
 			std::string req_desc;
 			std::string req_label;
+			
+			Requirement cur_requirement(nullptr);
+			std::list <Requirement> requirements;
 
-			std::vector <Requirement> requirements;
-			Requirement * cur_requirement;
 			size_t spaces, tabs;
 			unsigned int linenr = 0; 
+			
 			while(file.getline(line,LINEBUFSIZE)) { //for every line in the file
 				linenr++;
 				linestr = line; //store the line in the string
@@ -59,13 +61,13 @@ int main(int argc, char *argv[]) {
 	     			while(i != j) {
 					switch(count) {
 						case 0:
-							req_level = *i++;
+							cur_requirement.label  =*i++;
 							break;
 						case 1:
-							req_desc = *i++;
+							cur_requirement.description = *i++;
 							break;
 						case 2:
-							req_label = *i++;
+							cur_requirement.label = *i++;
 							break;
 						default:
 							*i++;
@@ -83,38 +85,44 @@ int main(int argc, char *argv[]) {
 				}
 				
 				if (depth == 0) {
-					requirements.emplace_back(req_level, req_desc, req_label,cur_requirement);
+					//requirements.emplace_back(req_level, req_desc, req_label,cur_requirement);
+					requirements.emplace_back(&cur_requirement);
 					cur_requirement = &requirements.back();
 				}
 				else if (depth != 0 && start) {
 					std::cout << "ERROR: First element has to be of depth zero!" << std::endl;
 				}
 				else {
-					if (current_depth == depth) {
-						cur_requirement->parent->children.emplace_back(req_level,req_desc,req_label,cur_requirement->parent);
-						cur_requirement = &cur_requirement->parent->children.back();
+					if (depth == 1) {
+						requirements.back().children.emplace_back(&cur_requirement);
+						cur_requirement = &requirements.back().children.back(); 
+						current_depth = 1;
+					}
+					else if (current_depth == depth) {
+						cur_requirement.parent->children.emplace_back(&cur_requirement.back());
+						cur_requirement = &cur_requirement.back().parent->children.back();
 					}
 					else if(current_depth == (depth-1)) { //depth is one deeper than current depth
-						cur_requirement->children.emplace_back(req_level,req_desc,req_label,cur_requirement);
-						cur_requirement = &cur_requirement->children.back();
+						cur_requirement.children.emplace_back(&cur_requirement.children.back());
+						cur_requirement = &cur_requirement.children.back();
 						current_depth = depth;
 					}
 					else if (current_depth < (depth-1)) { //depth is more than one deeper than current depth
 						while(current_depth != (depth-1)) { //until depth is one deeper than current depth
-							cur_requirement->children.emplace_back("empty", "empty", "empty",cur_requirement); //add empty element
-							cur_requirement = &cur_requirement->children.back();
+							cur_requirement.children.emplace_back("empty", "empty", "empty",&cur_requirement); //add empty element
+							cur_requirement = &cur_requirement.children.back();
 							current_depth++;
 						}
-						cur_requirement->children.emplace_back(req_level,req_desc,req_label,cur_requirement);
-						cur_requirement = &cur_requirement->children.back();
+						cur_requirement.children.emplace_back(&cur_requirement);
+						cur_requirement = &cur_requirement.children.back();
 						current_depth = depth;
 					}
 					else if(current_depth > depth) { //we are to deep, go up!
 						while (current_depth != depth) {
-							cur_requirement = cur_requirement->parent;
+							cur_requirement = cur_requirement.parent;
 							current_depth--;
 						}
-						cur_requirement->parent->children.emplace_back(req_level,req_desc,req_label,cur_requirement);
+						//cur_requirement.parent->children.emplace_back(&cur_requirement.children.back());
 					}
 
 
@@ -124,20 +132,20 @@ int main(int argc, char *argv[]) {
 
 			std::ofstream outfile(argv[2]); //try to open file
 			for (Requirement req : requirements) {
-				req.Display(0);
+				req.print();
 			}
 			if(argv[3] == "latex") {
 				std::cout << "parsing to latex..." << std::endl;
 				for (Requirement req : requirements) {
-					req.JSON(0,outfile);
+					req.print_json(outfile);
 				}
 				
 
 			}
 			else {
-				std:: cout << "parsing to latex..." << std::endl;
+				std:: cout << "parsing to screen..." << std::endl;
 				for (Requirement req : requirements) {
-					req.JSON(0,outfile);
+					req.print_json(outfile);
 				}
 				std::cout << "success!" << std::endl;
 			}

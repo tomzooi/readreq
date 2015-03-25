@@ -1,48 +1,54 @@
 #include <string>
-#include <vector>
+#include <list>
 #include "class.h" 
 #include <iostream>
 #include <fstream>
 
-Requirement::Requirement(std::string l, std::string d, std::string la,Requirement * p) {
-	level = l;
-	description = d;
-	label = la;
-	empty = false;
-	parent = p;
+Requirement::Requirement(Requirement const* p) 
+    : empty(false), parent(p)
+{
 }
-void Requirement::JSON(int depth,std::ofstream &outfile) {
-	for(int i=0; i<depth; i++) {
-		outfile << "\t";
-	}
-	outfile << "{\"level\":\"" << level << "\", \"description\":\"" << description << "\"";
-	if(label.length() > 1) {
-		outfile << ",\"label\":\"" << label <<"\"";
-	}
-	if(children.size() > 0) {
-		outfile << ", \"children\":[" << std::endl;
-		for(Requirement kid : children) {
-			kid.JSON(depth+1,outfile);
-		}
-		for(int i=0; i<depth; i++) {
-			outfile << '\t';
-		}
-		outfile << "]";
-	}
-	outfile << "}";
-	if (depth != 0) {
-		if (parent->children.back().description != description) {
-			outfile << ",";
-		}
-	}
-	outfile << std::endl;
+
+Requirement::Requirement(std::string l, std::string d, std::string la,Requirement const* p) // unused
+    : empty(false), 
+      level(std::move(l)), description(std::move(d)), label(std::move(la)), parent(p)
+{
 }
-void Requirement::Display(int depth) {
-	for(int i=0; i<depth; i++) {
-		std::cout << '\t';
-	}
-	std::cout << "level: " << level << " description:" << description << " label: " << label << std::endl;
-	for (Requirement kid : children) {
-		kid.Display(depth+1);
-	}
+
+void Requirement::print_json(std::ostream &os, std::string indent) {
+    os  << "{";
+    indent += '\t';
+
+    os
+         << "\n" << indent << "\"level\":\""       << level       << "\", "
+         << "\n" << indent << "\"description\":\"" << description << "\"";
+
+    if(label.length() > 1) {
+        os << ",\n" << indent << "\"label\":\"" << label <<"\"";
+    }
+
+    if (!children.empty()) {
+        os << ", \"children\":[\n";
+
+        bool first = true;
+        for(auto& child : children) {
+            if (!first)
+                os << ',';
+
+            first=false;
+
+            os << "\n" << indent;
+            child.print_json(os, indent);
+        }
+        os << "]";
+    }
+
+    indent.resize(indent.size() - 1);
+    os << "\n" << indent << "}";
+}
+
+void Requirement::print(std::string indent) {
+    std::cout << indent << "level: " << level << " description:" << description << " label: " << label << std::endl;
+    for (Requirement kid : children)
+        kid.print(indent + '\t');
 }
