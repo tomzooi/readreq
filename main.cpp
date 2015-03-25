@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 						current_depth = 1;
 					}
 					else if (current_depth == depth) {
-						cur_requirement.parent->children.emplace_back(&cur_requirement.back());
+						cur_requirement.parent->children.emplace_back(&cur_requirement);
 						cur_requirement = &cur_requirement.back().parent->children.back();
 					}
 					else if(current_depth == (depth-1)) { //depth is one deeper than current depth
