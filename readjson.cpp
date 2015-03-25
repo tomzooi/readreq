@@ -34,6 +34,7 @@ void parse_json(int depth, boost::property_tree::ptree const& tree, Requirement&
 int main(int argc, char *argv[]) {
 	
 	Requirement root(nullptr);
+	std::list<Requirement> requirements;
 
 	std::string name;
 	std::string prefix;
@@ -53,13 +54,21 @@ int main(int argc, char *argv[]) {
 
         boost::property_tree::ptree pt;
         boost::property_tree::read_json(ss, pt);
-	parse_json(0, pt,root);
+	if (auto reqs = pt.get_child_optional("requirements") ) {
+		for (auto& req : *reqs) {
+			requirements.emplace_back(nullptr);
+			parse_json(0, req.second,requirements.back());
+		}
+	}
        	std::cout << std::endl << std::endl;
 			
 	
 	std::cout << std::endl << std::endl;
-        root.print("; debug: ");
-        root.print_json(std::cout);
+        for (Requirement req : requirements) {
+		req.latex(std::cout, name, prefix, "#");
+	}
+
+	//root.print("; debug: ");
 	return EXIT_SUCCESS;
     }
     catch (std::exception const& e)

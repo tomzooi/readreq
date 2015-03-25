@@ -5,12 +5,14 @@ class Requirement {
         std::string level;
         std::string description;
         std::string label;
-        Requirement const* parent;
+        Requirement * parent;
         std::list <Requirement> children;
-
-        Requirement(Requirement const* p);
-        Requirement(std::string l, std::string d, std::string la, Requirement const* p); // unused
+	std::list <Requirement> const * plist;
+        Requirement(Requirement * p);
+        
+	Requirement(std::string l, std::string d, std::string la, Requirement * p); // unused
 
         void print(std::string indent = "");
         void print_json(std::ostream &os, std::string indent = "");
+	void latex(std::ostream &os, std::string name, std::string prefix, std::string indent); 
 };
