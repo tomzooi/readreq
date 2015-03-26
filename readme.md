@@ -6,7 +6,6 @@ To make a requirements editor/display to make concise networked requirements tha
 - simple tab based editor for requirements (vim like?) with live viewport
 - automatic numbering and stuff
   - parser for viewing in latex 
-  - (possibly html?)
   - latex automatic referencing?
 	
 #requirements format
@@ -42,3 +41,22 @@ F1: The system should be able to export requirements to latex easily
 	F1.1: The system will use a commandline based program for this
 
 #Latex
+
+
+	\begin{easylist}
+	\ListProperties(Style*=\textbf NF\textbf, Progressive*=3ex,Start1=1,FinalMark={})
+	# \label{req:pocnormbehav} The POC should not impede any freedom of the users or invade his or hers normal behaviour too much
+	# \label{req:pocusable} The POC will be usable by wheelchair users with as less assistance as possible
+	# \label{req:pocsafe} The POC will be safe for users and the environment
+	## \label{req:pocprivacy} The POC will keep users privacy
+	## \label{req:pocnot harm} The POC will not harm the user
+	# \label{req:pocscalable} The POC will not be scalable to all wheelchair users in Singapore
+	# \label{req:pocsimple} The POC will be simple
+	## \label{req:pochw} The POC will use existing hardware
+	\end{easylist}
+
+#Use
+
+    readreq <inputfile> <outputfile>
+
+will read the inputfile, put the JSON in the outputfile and display the latex in your console
