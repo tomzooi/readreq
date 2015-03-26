@@ -1,10 +1,18 @@
-will 	do lots of good stuff
+will	do lots of good stuff
 will	do nice work	goodwork
-	can 		be listening to spaces as well 	lisspace
-	can 	a lot of levels back down again
+	can	be listening to spaces as well	lisspace
+	can	a lot of levels back down again
 	can 	skip all the way back here 	skiphere
 		should 	take three linestr 	threelines 
 			should 	do three
 				should 	skip back
 	should 	skip back some more
 should 	skp back a lot
+will	provide current information about the accessibility of Singapore	basic
+will	monitor road conditions and obstructions	monitor
+	will	record steepness of slopes, sideways and forwards with an accuracy of a couple degrees	slopes
+	will	record curbs and other ridges with a good estimate of their height	curbs
+	could	record bumpiness, rough ground cobblestones sandy roads 	roughroads
+	could	if routes are sheltered 	sheltered
+will	map all road conditions and obstructions geographically located with a suitable accuracy
+	will	 not give segfaults

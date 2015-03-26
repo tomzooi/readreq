@@ -53,7 +53,10 @@ void Requirement::print(std::string indent) {
         kid.print(indent + '\t');
 }
 void Requirement::latex(std::ostream &os, std::string name, std::string prefix, std::string indent) {
-    os << indent << " " << name << " " << level << " " << description << std::endl;
+    os << indent << " ";
+    if (label.length() > 2)
+    	os << "\\label{req:" << label << "} ";
+    os << name << " " << level << " " << description << std::endl;
     for (Requirement kid : children)
         kid.latex(os,name,prefix,indent + '#');
 }

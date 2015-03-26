@@ -8,6 +8,9 @@
 #include <iterator>
 #include <algorithm>
 #include <math.h>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 //how many spaces are interpreted as one tab or level
 #define SPACES 8 
@@ -24,7 +27,7 @@ void parse_req(unsigned int cur_depth, std::ifstream &f, std::list<Requirement> 
 	while (std::getline(f, line))	{
 		linenr++;
 	    //	std::cout << "(" << linenr << "): " << line; 
-		depth = line.find_first_not_of(" 	"); //find first none space or tab character
+		depth = line.find_first_not_of("\t "); //find first none space or tab character
 		
 		
 		boost::sregex_token_iterator i(line.begin()+depth, line.end(), re, -1); //split line by tabs and spaces
@@ -44,7 +47,6 @@ void parse_req(unsigned int cur_depth, std::ifstream &f, std::list<Requirement> 
 			//lptr = cur->parent;
 			while (cur_depth > depth) { 
 				cur_depth--;
-				std::cout << "deeper : " << cur_depth << std::endl << std::flush;
 				lptr = &(lptr->back().parent->parent->children);
 			}
 			if(cur_depth != 0) {
@@ -53,18 +55,18 @@ void parse_req(unsigned int cur_depth, std::ifstream &f, std::list<Requirement> 
 			}
 			else {
 				reqlist.emplace_back(nullptr);
+				lptr = &reqlist;
 				cur = &reqlist.back();
 			}
 		}
 		while(i != j) { //for all splitted parts
 			switch(count) {
 				case 0:
+					
 					cur->level  =*i++;
-					//std::cout << "lvl: " << cur->level << " ";
 					break;
 				case 1:
 					cur->description = *i++;
-					//std::cout << "dsc: " << cur.description << std::endl;
 					break;
 				case 2:
 					cur->label = *i++;
@@ -95,6 +97,17 @@ int main(int argc, char *argv[]) {
 			std::cout << "Could not open file" ;
 		}
 		else { //sucesfully opened file
+			std::string name;
+			std::string prefix;
+			std::string filename;
+			filename = argv[1];
+			std::vector<std::string> filesplit;
+			boost::split(filesplit,filename, boost::is_any_of("."));
+			name = filesplit[0];
+			boost::replace_all(name, "_", " ");
+			prefix = filesplit[1];
+			std::cout << "name: " << name << " prefix: " << prefix << std::endl << std::endl;
+		
 			std::list<Requirement> requirements;
 			parse_req(0,file,requirements);
 
@@ -109,11 +122,15 @@ int main(int argc, char *argv[]) {
 				}
 			}
 			outfile << "]}";
-			std::cout << "success!" << std::endl;
+			std::cout << std::endl << std::endl;
+			std::cout << "\\begin{easylist}" << std::endl;
+			std::cout << "\\ListProperties(Style*=\\textbf " << prefix << "\\textbf, Progressive*=3ex,Start1=1,FinalMark={})" << std::endl;
+			for (Requirement req : requirements) {
+				req.latex(std::cout, name, prefix, "#");
 			}
-
+			std::cout << "\\end{easylist}" << std::endl;
 		}
-	 
+	}
 	return 0;
 }
 

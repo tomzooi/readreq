@@ -1,9 +1,83 @@
-{"level":"should", "description":"very well performance wise","label":"goperf", "children":[
-	{"level":"should", "description":"be listening to spaces as well","label":"lisspace"},
-	{"level":"will", "description":"a lot of levels back down again", "children":[
-		{"level":"empty", "description":"empty","label":"empty", "children":[
-			{"level":"can", "description":"skip all the way back here","label":"skiphere"},
-			{"level":"can", "description":"take three linestr","label":"threelines"}
-		]}
-	]}
-]}
+{ "requirements":[{
+	"level":"will", 
+	"description":"do lots of good stuff"
+},{
+	"level":"will", 
+	"description":"do nice work",
+	"label":"goodwork", "children":[
+
+	{
+		"level":"can", 
+		"description":"be listening to spaces as well",
+		"label":"lisspace"
+	},
+	{
+		"level":"can", 
+		"description":"a lot of levels back down again"
+	},
+	{
+		"level":"can", 
+		"description":"skip all the way back here",
+		"label":"skiphere", "children":[
+
+		{
+			"level":"should", 
+			"description":"take three linestr",
+			"label":"threelines ", "children":[
+
+			{
+				"level":"should", 
+				"description":"do three", "children":[
+
+				{
+					"level":"should", 
+					"description":"skip back"
+				}]
+			}]
+		}]
+	},
+	{
+		"level":"should", 
+		"description":"skip back some more"
+	}]
+},{
+	"level":"should", 
+	"description":"skp back a lot"
+},{
+	"level":"will", 
+	"description":"provide current information about the accessibility of Singapore",
+	"label":"basic"
+},{
+	"level":"will", 
+	"description":"monitor road conditions and obstructions",
+	"label":"monitor", "children":[
+
+	{
+		"level":"will", 
+		"description":"record steepness of slopes, sideways and forwards with an accuracy of a couple degrees",
+		"label":"slopes"
+	},
+	{
+		"level":"will", 
+		"description":"record curbs and other ridges with a good estimate of their height",
+		"label":"curbs"
+	},
+	{
+		"level":"could", 
+		"description":"record bumpiness, rough ground cobblestones sandy roads",
+		"label":"roughroads"
+	},
+	{
+		"level":"could", 
+		"description":"if routes are sheltered",
+		"label":"sheltered"
+	}]
+},{
+	"level":"will", 
+	"description":"map all road conditions and obstructions geographically located with a suitable accuracy", "children":[
+
+	{
+		"level":"will", 
+		"description":" not give segfaults"
+	}]
+}]}
